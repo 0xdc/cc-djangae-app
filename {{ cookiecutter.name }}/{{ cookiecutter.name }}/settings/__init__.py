@@ -16,6 +16,7 @@ import string
 from random import SystemRandom
 
 from django.core.exceptions import ImproperlyConfigured
+from djangae.settings_base import *
 
 
 def env(env_var):
@@ -52,38 +53,45 @@ os.environ.setdefault("DEBUG", "")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(env("DEBUG"))
 
-if not DEBUG:
+try:
     ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(" ")
+except:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    sys.stderr.write("No ALLOWED_HOSTS provided; defaulting to: {}".format(", ".join(ALLOWED_HOSTS)))
 
 # Detect proxied SSL header
 # https://docs.djangoproject.com/en/1.11/ref/settings/#secure-proxy-ssl-header
 os.environ.setdefault("SSL", "")
 ssl = bool(env("SSL"))
 if ssl:
-    print("Enabling SSL proxy header", file=sys.stderr)
+    sys.stderr.write("Enabling SSL proxy header")
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
-    print("Not enabling SSL proxy header", file=sys.stderr)
+    sys.stderr.write("Not enabling SSL proxy header")
 
 # Application definition
 
 INSTALLED_APPS = [
-        'django.contrib.admin',
+        'djangae',
         'django.contrib.auth',
+        'djangae.contrib.gauth_datastore',
         'django.contrib.contenttypes',
+        'djangae.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'djangae.contrib.security',
 ]
 
 MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
+        'djangae.contrib.security.middleware.AppEngineSecurityMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'djangae.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'session_csrf.CsrfMiddleware',
 ]
 
 ROOT_URLCONF = '{{ cookiecutter.name }}.urls'
@@ -110,8 +118,7 @@ WSGI_APPLICATION = '{{ cookiecutter.name }}.wsgi.application'
 
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'ENGINE': 'djangae.db.backends.appengine',
         }
 }
 # Password validation
@@ -148,3 +155,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+
+AUTH_USER_MODEL = "gauth_datastore.GaeDatastoreUser"
+AUTHENTICATION_BACKENDS = (
+    'djangae.contrib.gauth_datastore.backends.AppEngineUserAPIBackend',
+)

@@ -1,0 +1,16 @@
+runtime: python27
+threadsafe: true
+
+env_variables:
+  ALLOWED_HOSTS: "*"
+handlers:
+- url: /_ah/(mapreduce|queue|warmup).*
+  script: {{ cookiecutter.name }}.wsgi.application
+  login: admin
+- url: /static
+  static_dir: static/
+- url: /.*
+  script: {{ cookiecutter.name }}.wsgi.application
+libraries:
+- name: django
+  version: "1.11"
