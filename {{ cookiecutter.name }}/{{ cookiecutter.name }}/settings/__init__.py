@@ -57,17 +57,17 @@ try:
     ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(" ")
 except:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-    sys.stderr.write("No ALLOWED_HOSTS provided; defaulting to: {}".format(", ".join(ALLOWED_HOSTS)))
+    sys.stderr.write("No ALLOWED_HOSTS provided; defaulting to: {}\n".format(", ".join(ALLOWED_HOSTS)))
 
 # Detect proxied SSL header
 # https://docs.djangoproject.com/en/1.11/ref/settings/#secure-proxy-ssl-header
 os.environ.setdefault("SSL", "")
 ssl = bool(env("SSL"))
 if ssl:
-    sys.stderr.write("Enabling SSL proxy header")
+    sys.stderr.write("Enabling SSL proxy header\n")
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
-    sys.stderr.write("Not enabling SSL proxy header")
+    sys.stderr.write("Not enabling SSL proxy header\n")
 
 # Application definition
 
