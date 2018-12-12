@@ -69,3 +69,6 @@ static/
 ## Secrets
 db.sqlite3
 secretkey.txt
+
+# AppEngine
+.storage/
